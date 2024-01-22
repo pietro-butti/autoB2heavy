@@ -1,0 +1,57 @@
+
+# Configs
+author = 'pietro.butti'
+title = '2pts fits'
+
+# Meson list
+[meson]
+    list = ['D','Dst','Ds', 'Dsst']
+
+[ensemble]
+    list = ['MediumCoarse']
+
+[data]
+    [data.MediumCoarse]
+        name     = 'MediumCoarse'
+        data_dir = "/Users/pietro/code/data_analysis/BtoD/Alex"
+        binsize  = 13
+        mom_list = ['000','100','200','300','400','110','211','222']
+        Nt       = 48
+
+    
+
+[fit]
+    [fit.MediumCoarse]    
+        [fit.MediumCoarse.Dst]
+            nstates = 3
+            smlist = ['d-d','1S-1S','d-1S']
+
+
+        [fit.MediumCoarse.Dsst]
+            nstates = 3
+            smlist  = ['d-d','1S-1S','d-1S'] 
+            [fit.MediumCoarse.mom]
+                [fit.MediumCoarse.Dsst.mom.000]
+                    tag    = 'MediumCoarse_Dsst_000'
+                    trange = [10,19]
+                [fit.MediumCoarse.Dsst.mom.100] 
+                    tag    = 'MediumCoarse_Dsst_100'
+                    trange = [10,19]
+                [fit.MediumCoarse.Dsst.mom.200] 
+                    tag    = 'MediumCoarse_Dsst_200'
+                    trange = [10,17]
+                [fit.MediumCoarse.Dsst.mom.300] 
+                    tag    = 'MediumCoarse_Dsst_300'
+                    trange = [10,17]
+                [fit.MediumCoarse.Dsst.mom.400] 
+                    tag    = 'MediumCoarse_Dsst_400'
+                    trange = [10,17]
+                [fit.MediumCoarse.Dsst.mom.110] 
+                    tag    = 'MediumCoarse_Dsst_110'
+                    trange = [10,17]
+                [fit.MediumCoarse.Dsst.mom.211] 
+                    tag    = 'MediumCoarse_Dsst_211'
+                    trange = [10,17]
+                [fit.MediumCoarse.Dsst.mom.222] 
+                    tag    = 'MediumCoarse_Dsst_222'
+                    trange = [10,17]
