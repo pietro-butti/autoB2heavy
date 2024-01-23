@@ -21,9 +21,9 @@ import sys
 import tomllib
 import os
 
-sys.path.append('/Users/pietro/code/data_analysis/BtoD/B2heavy')
-import B2heavy
-from B2heavy import TwoPointFunctions
+sys.path.append('/Users/pietro/code/data_analysis/BtoD/B2heavy/')
+# import B2heavy
+from src import TwoPointFunctions
 from B2heavy import FnalHISQMetadata
 
 
@@ -128,42 +128,47 @@ def main():
     for ens in ENSEMBLE_LIST:
         for meson in MESON_LIST:
             for mom in (MOM_LIST if MOM_LIST else config['fit'][ens][meson]['mom'].keys()):
-                tag = config['fit'][ens][meson]['mom'][mom]['tag']
-                data_dir = config['data'][ens]['data_dir']
-                binsize  = config['data'][ens]['binsize'] 
-                smlist   = config['fit'][ens][meson]['smlist'] 
-                nstates  = config['fit'][ens][meson]['nstates'] 
-                trange   = tuple(config['fit'][ens][meson]['mom'][mom]['trange']) 
 
-                if os.path.exists(args.saveto):
-                    if not JKFIT:
-                        saveto = f'{args.saveto}/fit2pt_config_{tag}.pickle' if args.saveto is not None else None
+                # try:
+                    tag = config['fit'][ens][meson]['mom'][mom]['tag']
+                    data_dir = config['data'][ens]['data_dir']
+                    binsize  = config['data'][ens]['binsize'] 
+                    smlist   = config['fit'][ens][meson]['smlist'] 
+                    nstates  = config['fit'][ens][meson]['nstates'] 
+                    trange   = tuple(config['fit'][ens][meson]['mom'][mom]['trange']) 
+
+                    if os.path.exists(args.saveto):
+                        if not JKFIT:
+                            saveto = f'{args.saveto}/fit2pt_config_{tag}.pickle' if args.saveto is not None else None
+                        else:
+                            saveto = f'{args.saveto}/fit2pt_config_jk_{tag}.pickle' if args.saveto is not None else None
                     else:
-                        saveto = f'{args.saveto}/fit2pt_config_jk_{tag}.pickle' if args.saveto is not None else None
-                else:
-                    raise NameError(f'{args.saveto} is not an existing location.')
+                        raise NameError(f'{args.saveto} is not an existing location.')
 
-                # Check if there is an already existing analysis
-                if os.path.exists(saveto):
-                    if args.override:
-                        print(f'Already existing analysis for {tag}, but overriding...')
-                    else:
-                        print(f'Analysis for {tag} already up to date')
-                        continue
+                    # Check if there is an already existing analysis
+                    if os.path.exists(saveto):
+                        if args.override:
+                            print(f'Already existing analysis for {tag}, but overriding...')
+                        else:
+                            print(f'Analysis for {tag} already up to date')
+                            continue
 
-                fit_2pts_single_corr(
-                    ens, meson, 
-                    mom, 
-                    data_dir, 
-                    binsize, 
-                    smlist, 
-                    nstates, 
-                    trange, 
-                    saveto=saveto, 
-                    jkfit=JKFIT,
-                    meff=True, 
-                    priors='meff'
-                )
+                    fit_2pts_single_corr(
+                        ens, meson, 
+                        mom, 
+                        data_dir, 
+                        binsize, 
+                        smlist, 
+                        nstates, 
+                        trange, 
+                        saveto=saveto, 
+                        jkfit=JKFIT,
+                        meff=True, 
+                        priors='meff'
+                    )
+
+                # except:
+                #     print(f'analysis for {tag} raised an exception. Skipping...')
 
 
 

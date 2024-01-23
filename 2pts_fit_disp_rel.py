@@ -1,3 +1,21 @@
+# THIS ROUTINE DEALS WITH THE FIRST ANALYSIS OF 2PTS FUNCTIONS
+# -------------------------------- usage --------------------------------
+usage = '''
+python 2pts_disp_rel.py --config   [file location of the toml config file]          \n
+                        --ensemble [ensemble analyzed]                     \n
+                        --meson    [meson analyzed]    \n
+                        --momlist  [list of moments that have to be fitted to disp. relation]                      \n
+                        --jkfit    [use jackknifed fit] \n   
+                        --readfrom [*where* is the analysis?]             \n
+                        --plot     [do you want to plot?]
+                        --showfig  [do you want to display plot?]
+                        --saveto   [*where* do you want to save files?]              \n
+
+Examples
+'''
+
+
+
 import argparse
 import pickle
 import sys
@@ -6,10 +24,11 @@ import gvar as gv
 import os
 import matplotlib.pyplot as plt
 import lsqfit
+import tomllib
 
 sys.path.append('/Users/pietro/code/data_analysis/BtoD/B2heavy')
 import B2heavy
-from B2heavy import TwoPointFunctions
+from B2heavy.src import TwoPointFunctions
 from B2heavy import FnalHISQMetadata
 
 from scipy.optimize import curve_fit
@@ -64,9 +83,6 @@ def format_energies(E,jk=False):
 
     return psort,xfit,yfit
 
-
-
-
 def dispersion_relation(pvec,M1,M2,M4,w4):
     px,py,pz = pvec
     p2 = px**2 + py**2 + pz**2
@@ -77,8 +93,6 @@ def dispersion_relation(pvec,M1,M2,M4,w4):
 
 def model(pvec,M1,M2,M4,w4):
     return [dispersion_relation(p,M1,M2,M4,w4) for p in pvec]
-
-
 
 def fit_dispersion_relation(momlist,E0):
     # Define fit points
@@ -99,8 +113,6 @@ def fit_dispersion_relation(momlist,E0):
 
     return pars,chisq
 
-
-
 def plot_dispersion_relation(ax,mom,p2,E0,fitpar=None,chi2=None):
     xfit = p2
     yfit = E0**2
@@ -117,7 +129,75 @@ def plot_dispersion_relation(ax,mom,p2,E0,fitpar=None,chi2=None):
 
 
 
+
+prs = argparse.ArgumentParser(usage=usage)
+prs.add_argument('--ensemble', type=str)
+prs.add_argument('--meson', type=str)
+prs.add_argument('--momlist', type=str, nargs='+', default=[])
+prs.add_argument('--jkfit', action='store_true')
+prs.add_argument('--readfrom', type=str)
+prs.add_argument('--saveto',   type=str, default='./')
+prs.add_argument('--override', action='store_true')
+prs.add_argument('--plot', action='store_true')
+prs.add_argument('--showfig', action='store_true')
+
+
+
+
 def main():
+    args = prs.parse_args()
+
+    ens = args.ensemble
+    mes = args.meson
+
+    tag = f'{ens}_{mes}'
+    
+
+    if not os.path.exists(args.readfrom):
+        raise NameError(f'{args.readfrom} is not an existing location')
+
+    if not os.path.exists(args.saveto):
+        raise NameError(f'{args.saveto} is not an existing location')
+
+    JK = True if args.jkfit else False
+
+    E = extract_energies(
+        ensemble = ens,
+        meson    = mes,
+        momlist  = None if not args.momlist else args.momlist,
+        jk       = JK,
+        readfrom = args.readfrom  
+    )
+
+    mom,p2,E0 = format_energies(E,jk=JK)
+    pars,chi2 = fit_dispersion_relation(mom,E0)
+
+    if args.plot:
+        plt.rcParams['text.usetex'] = True
+        plt.rcParams['font.size'] = 12
+        plt.figure(figsize=(6, 4))
+        ax = plt.subplot(1,1,1)
+
+        plot_dispersion_relation(ax,mom,p2,E0,fitpar=pars,chi2=chi2)
+
+        ax.legend()
+        ax.grid(alpha=0.2)
+
+        ax.set_ylabel(r'$a^2 E^2(\mathbf{p})$')
+        ax.set_xlabel(r'$a^2\mathbf{p}^2$')
+
+        ax.set_xlim(xmin=-0.1)
+
+        plt.tight_layout()
+        plt.savefig(f'{args.saveto}/fit2pt_disp_rel_{tag}.pdf')
+
+
+        if args.showfig:
+            plt.show()
+
+
+
+def test():
     JK = True
     PLOT = True
     MOMLIST = [
@@ -143,7 +223,6 @@ def main():
     mom,p2,E0 = format_energies(E,jk=JK)
 
     pars,chi2 = fit_dispersion_relation(mom,E0)
-    # print(fit)
 
     if PLOT:
         plt.rcParams['text.usetex'] = True

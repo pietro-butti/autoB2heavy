@@ -31,7 +31,7 @@ import h5py
 
 sys.path.append('/Users/pietro/code/data_analysis/BtoD/B2heavy')
 import B2heavy
-from B2heavy import TwoPointFunctions
+from B2heavy.src import TwoPointFunctions
 from B2heavy import FnalHISQMetadata
 
 def stability_test_fit(ens,meson,mom,data_dir,binsize,smslist,nexcrange,tminrange,tmaxrange,saveto='./'):
@@ -151,7 +151,7 @@ def load_toml(file) -> dict:
 
 
 
-prs = argparse.ArgumentParser()
+prs = argparse.ArgumentParser(usage=usage)
 prs.add_argument('-c','--config', type=str,  default='./2pts_fit_config.toml')
 prs.add_argument('--ensemble', type=str)
 prs.add_argument('--meson'   , type=str)
